@@ -35,6 +35,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
                     export KUBECONFIG=$KUBECONFIG
+                    kubectl get nodes
                     kubectl apply -f deployment.yaml
                     kubectl apply -f service.yaml
                     kubectl rollout restart deployment jenkins-demo-deployment
