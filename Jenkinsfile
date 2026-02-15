@@ -1,30 +1,47 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "haridockerlab/jenkins-demo:latest"
+    }
+
     stages {
 
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                git branch: 'main', url: 'https://github.com/Hariharan-Laboratory/jenkins-cicd-project.git'
+                git 'https://github.com/Hariharan-Laboratory/jenkins-cicd-project.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t jenkins-demo .'
+                sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
 
-        stage('Stop Old Container') {
+        stage('Push Docker Image') {
             steps {
-                sh 'docker rm -f jenkins-demo-container || true'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh '''
+                    echo $PASS | docker login -u $USER --password-stdin
+                    docker push $DOCKER_IMAGE
+                    '''
+                }
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh 'docker run -d -p 3001:3000 --name jenkins-demo-container jenkins-demo'
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    export KUBECONFIG=$KUBECONFIG
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                    kubectl rollout restart deployment jenkins-demo-deployment
+                    '''
+                }
             }
         }
     }
 }
+
