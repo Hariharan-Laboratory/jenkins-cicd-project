@@ -9,7 +9,7 @@ pipeline {
 
         stage('Clone') {
             steps {
-                git 'https://github.com/Hariharan-Laboratory/jenkins-cicd-project.git'
+                git branch: 'main', url: 'https://github.com/Hariharan-Laboratory/jenkins-cicd-project.git'
             }
         }
 
