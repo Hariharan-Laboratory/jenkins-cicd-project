@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: jenkins-demo-deployment
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: jenkins-demo
@@ -13,9 +13,9 @@ spec:
         app: jenkins-demo
     spec:
       containers:
-      - name: jenkins-demo-container
-        image: hariharanslab/jenkins-demo:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 3000
+        - name: jenkins-demo
+          image: hariharanslab/jenkins-demo:latest
+          ports:
+            - containerPort: 3000
+
 

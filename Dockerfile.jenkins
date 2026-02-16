@@ -2,8 +2,16 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-RUN apt-get update && \
-    apt-get install -y docker.io
+# install docker cli
+RUN apt-get update \
+ && apt-get install -y docker.io \
+ && apt-get clean
+
+# VERY IMPORTANT — match host docker.sock group (Mac = 1)
+RUN groupadd -g 1 dockersock || true
+RUN usermod -aG 1 jenkins
 
 USER jenkins
+
+
 
